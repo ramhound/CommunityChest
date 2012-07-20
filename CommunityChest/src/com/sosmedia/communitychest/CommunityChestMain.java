@@ -7,21 +7,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
+
 import org.bukkit.plugin.java.JavaPlugin;
 
 
 public class CommunityChestMain extends JavaPlugin {
 	public File file;
-	public CardboardBox[] items = new CardboardBox[6 * 9];
-
-	ChestListener cl = new ChestListener(this);
+	private HashMap<String, CardboardBox[]> chests = new HashMap<String, CardboardBox[]>();
+	private final ChestListener cl = new ChestListener(this);
+	
 	@Override
 	public void onEnable() {
 		loadFile();
 		getServer().getPluginManager().registerEvents(cl, this);
 	}
 
-	public CardboardBox[] loadFile() {
+	public HashMap<String, CardboardBox[]> loadFile() {
 		File fileDir = new File("plugins" + File.separator + getDescription().getName() + File.separator);
 		file = new File("plugins" + File.separator + getDescription().getName() + File.separator + "chestinventory.ser");
 		if(!file.exists()) {
@@ -30,7 +32,8 @@ public class CommunityChestMain extends JavaPlugin {
 			}
 			try {
 				file.createNewFile();
-				saveFile(items);
+				chests.put("server", new CardboardBox[54]);
+				saveFile(chests);
 			} catch (IOException e) {
 				// let them know
 				e.printStackTrace();
@@ -39,9 +42,9 @@ public class CommunityChestMain extends JavaPlugin {
 			try {
 				FileInputStream fis = new FileInputStream(file);
 				ObjectInputStream ois = new ObjectInputStream(fis);
-				items = (CardboardBox[]) ois.readObject();
+				chests = (HashMap<String, CardboardBox[]>) ois.readObject();
 				ois.close();
-				return items;
+				return chests;
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
