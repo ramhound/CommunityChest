@@ -1,5 +1,8 @@
 package com.sosmedia.communitychest;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -8,13 +11,12 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.ItemStack;
-
-
 
 public class ChestListener implements Listener {
 	public CommunityChestMain plugin;
@@ -34,49 +36,30 @@ public class ChestListener implements Listener {
 			Chest rightChest = (Chest) dci.getRightSide().getHolder();
 			Block rightBlock = rightChest.getBlock().getRelative(0, 1, 0);
 			Material rightBlockType = rightBlock.getType();
-
-			if(leftBlockType == Material.WALL_SIGN) {
-				Sign sign = (Sign) leftBlock.getState(); 
+			if(leftBlockType == Material.WALL_SIGN || rightBlockType == Material.WALL_SIGN) {
+				Sign sign = leftBlockType == Material.WALL_SIGN ? (Sign) leftBlock.getState() : (Sign) rightBlock.getState(); 
 				String[] lines = sign.getLines();
 				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
-					CardboardBox[] items = plugin.loadFile();
-					ItemStack[] tempItems = new ItemStack[items.length];
-					for(int i = 0; i < items.length; i++) {
-						if(items[i] == null) { 
-							continue; 
+					HashMap<String, CardboardBox[]> chests = plugin.loadFile();
+					String chestName = lines[2].toLowerCase();
+					if(chests.containsKey(chestName)) {
+						CardboardBox[] items = chests.get(chestName);
+						ItemStack[] tempItems =  new ItemStack[items.length];
+						for(int i = 0; i < items.length; i++) {
+							if(items[i] == null) { 
+								continue; 
+							} 
+							tempItems[i] = items[i].unbox(); 
 						} 
-						tempItems[i] = items[i].unbox(); 
-					} 
-					dci.setContents(tempItems);
+						dci.setContents(tempItems);
+					} else {
+						chests.put(chestName, new CardboardBox[54]);
+						plugin.saveFile(chests);
+					}
 				} 
 			}
-
-			else if(rightBlockType == Material.WALL_SIGN) {
-				Sign sign = (Sign) rightBlock.getState(); 
-				String[] lines = sign.getLines();
-				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
-					CardboardBox[] items = plugin.loadFile();
-					ItemStack[] tempItems = new ItemStack[items.length];
-					for(int i = 0; i < items.length; i++) {
-						if(items[i] == null) { 
-							continue; 
-						} 
-						tempItems[i] = items[i].unbox(); 
-					} 
-					dci.setContents(tempItems);
-				} 
-			}
-
 		}
 	}
-
-	/*
-	 * 
-	 * When i took this method out for some reason items that i put into the DoubleChestInventory
-	 * are dissapeering. I will look into this later. For now i left the method included so you can
-	 * test this shit out for yourself and mess around with it.
-	 * 
-	 */
 
 	@EventHandler
 	public void inventoryClose(InventoryCloseEvent event) {
@@ -88,38 +71,29 @@ public class ChestListener implements Listener {
 			Chest rightChest = (Chest) dci.getRightSide().getHolder();
 			Block rightBlock = rightChest.getBlock().getRelative(0, 1, 0);
 			Material rightBlockType = rightBlock.getType();
-
-			if(leftBlockType == Material.WALL_SIGN) {
-				Sign sign = (Sign) leftBlock.getState();
+			if(leftBlockType == Material.WALL_SIGN || rightBlockType == Material.WALL_SIGN) {
+				Sign sign = leftBlockType == Material.WALL_SIGN ? (Sign) leftBlock.getState() : (Sign) rightBlock.getState(); 
 				String[] lines = sign.getLines();
 				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) {   
-					ItemStack[] tempItems = dci.getContents();
-					CardboardBox[] items = new CardboardBox[tempItems.length];
-					for(int i = 0; i < items.length; i++) {
-						if(tempItems[i] == null) {
-							continue;
+					HashMap<String, CardboardBox[]> chests = plugin.loadFile();
+					String chestName = lines[2].toLowerCase();
+					if(chests.containsKey(chestName)) {
+						ItemStack[] tempItems = dci.getContents();
+						CardboardBox[] items = new CardboardBox[tempItems.length];
+						for(int i = 0; i < items.length; i++) {
+							if(tempItems[i] == null) {
+								continue;
+							}
+							items[i] = new CardboardBox(tempItems[i]);
 						}
-						items[i] = new CardboardBox(tempItems[i]);
+						chests.put(chestName, items);
+						plugin.saveFile(chests);
 					}
-					plugin.saveFile(items);
 				}
-			} else if(rightBlockType == Material.WALL_SIGN) {
-				Sign sign = (Sign) rightBlock.getState();
-				String[] lines = sign.getLines();
-				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) {   
-					ItemStack[] tempItems = dci.getContents();
-					CardboardBox[] items = new CardboardBox[tempItems.length];
-					for(int i = 0; i < items.length; i++) {
-						if(tempItems[i] == null) {
-							continue;
-						}
-						items[i] = new CardboardBox(tempItems[i]);
-					}
-					plugin.saveFile(items);
-				}
-			} 
+			}
 		}
 	}
+
 	@EventHandler
 	public void inventoryClick(InventoryClickEvent event) {
 		if(event.getInventory() instanceof DoubleChestInventory) {
@@ -130,36 +104,23 @@ public class ChestListener implements Listener {
 			Chest rightChest = (Chest) dci.getRightSide().getHolder();
 			Block rightBlock = rightChest.getBlock().getRelative(0, 1, 0);
 			Material rightBlockType = rightBlock.getType();
-			if(leftBlockType == Material.WALL_SIGN) {
-				Sign sign = (Sign) leftBlock.getState();
+			if(leftBlockType == Material.WALL_SIGN || rightBlockType == Material.WALL_SIGN) {
+				Sign sign = leftBlockType == Material.WALL_SIGN ? (Sign) leftBlock.getState() : (Sign) rightBlock.getState(); 
 				String[] lines = sign.getLines();
 				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) {   
-					ItemStack[] tempItems = dci.getContents();
-					CardboardBox[] items = new CardboardBox[tempItems.length];
-					for(int i = 0; i < items.length; i++) {
-						if(tempItems[i] == null) {
-							continue;
+					HashMap<String, CardboardBox[]> chests = plugin.loadFile();
+					String chestName = lines[2].toLowerCase();
+					if(chests.containsKey(chestName)) {
+						ItemStack[] tempItems = dci.getContents();
+						CardboardBox[] items = new CardboardBox[tempItems.length];
+						for(int i = 0; i < tempItems.length; i++) {
+							if(tempItems[i] == null) {
+								continue;
+							}
+							items[i] = new CardboardBox(tempItems[i]);
 						}
-						items[i] = new CardboardBox(tempItems[i]);
-					}
-					if(plugin.saveFile(items)) {
-						System.out.println("Saved after InventorClickEvent");
-					}
-				}
-			} else if(rightBlockType == Material.WALL_SIGN) {
-				Sign sign = (Sign) rightBlock.getState();
-				String[] lines = sign.getLines();
-				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) {   
-					ItemStack[] tempItems = dci.getContents();
-					CardboardBox[] items = new CardboardBox[tempItems.length];
-					for(int i = 0; i < items.length; i++) {
-						if(tempItems[i] == null) {
-							continue;
-						}
-						items[i] = new CardboardBox(tempItems[i]);
-					}
-					if(plugin.saveFile(items)) {
-						System.out.println("Saved after InventorClickEvent");
+						chests.put(chestName, items);
+						plugin.saveFile(chests);
 					}
 				}
 			}
@@ -167,8 +128,21 @@ public class ChestListener implements Listener {
 	}
 
 	@EventHandler
+	public void explodeEvent(EntityExplodeEvent event) {
+		List<Block> blockList = event.blockList();
+		for(int i = 0; i < blockList.size(); i++) {
+			Block block = blockList.get(i);
+			emptyChest(block);	
+		}
+	}
+
+	@EventHandler
 	public void blockBreak(BlockBreakEvent event) {
 		Block block = event.getBlock();
+		emptyChest(block);
+	}
+
+	public void emptyChest(Block block) {
 		Material blockType = block.getType();
 		if(blockType == Material.WALL_SIGN) {
 			Sign sign = (Sign) block.getState();
@@ -178,6 +152,53 @@ public class ChestListener implements Listener {
 				if(blockUnder.getTypeId() == 54) {
 					Location loc = blockUnder.getLocation();
 					Chest chest = (Chest)loc.getBlock().getState();
+					chest.getInventory().clear();
+				}
+			}
+		} else if(blockType == Material.CHEST) {
+			Chest chest = (Chest) block.getState();
+			Block blockAbove = block.getRelative(0, 1, 0);
+			blockType = blockAbove.getType();
+			if(blockType == Material.WALL_SIGN) {
+				Sign sign = (Sign) blockAbove.getState();
+				String[] lines = sign.getLines();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					chest.getInventory().clear();
+				}
+			}
+			blockAbove = block.getRelative(1, 1, 0);
+			blockType = blockAbove.getType();
+			if(blockType == Material.WALL_SIGN) {
+				Sign sign = (Sign) blockAbove.getState();
+				String[] lines = sign.getLines();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					chest.getInventory().clear();
+				}
+			}
+			blockAbove = block.getRelative(-1, 1, 0);
+			blockType = blockAbove.getType();
+			if(blockType == Material.WALL_SIGN) {
+				Sign sign = (Sign) blockAbove.getState();
+				String[] lines = sign.getLines();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					chest.getInventory().clear();
+				}
+			}
+			blockAbove = block.getRelative(0, 1, 1);
+			blockType = blockAbove.getType();
+			if(blockType == Material.WALL_SIGN) {
+				Sign sign = (Sign) blockAbove.getState();
+				String[] lines = sign.getLines();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					chest.getInventory().clear();
+				}
+			}
+			blockAbove = block.getRelative(0, 1, -1);
+			blockType = blockAbove.getType();
+			if(blockType == Material.WALL_SIGN) {
+				Sign sign = (Sign) blockAbove.getState();
+				String[] lines = sign.getLines();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
 					chest.getInventory().clear();
 				}
 			}
