@@ -1,24 +1,22 @@
 package com.sosmedia.communitychest;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.DoubleChestInventory;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
-
 
 public class ChestListener implements Listener {
 	public CommunityChestMain plugin;
@@ -130,8 +128,21 @@ public class ChestListener implements Listener {
 	}
 
 	@EventHandler
+	public void explodeEvent(EntityExplodeEvent event) {
+		List<Block> blockList = event.blockList();
+		for(int i = 0; i < blockList.size(); i++) {
+			Block block = blockList.get(i);
+			emptyChest(block);	
+		}
+	}
+
+	@EventHandler
 	public void blockBreak(BlockBreakEvent event) {
 		Block block = event.getBlock();
+		emptyChest(block);
+	}
+
+	public void emptyChest(Block block) {
 		Material blockType = block.getType();
 		if(blockType == Material.WALL_SIGN) {
 			Sign sign = (Sign) block.getState();
@@ -141,6 +152,53 @@ public class ChestListener implements Listener {
 				if(blockUnder.getTypeId() == 54) {
 					Location loc = blockUnder.getLocation();
 					Chest chest = (Chest)loc.getBlock().getState();
+					chest.getInventory().clear();
+				}
+			}
+		} else if(blockType == Material.CHEST) {
+			Chest chest = (Chest) block.getState();
+			Block blockAbove = block.getRelative(0, 1, 0);
+			blockType = blockAbove.getType();
+			if(blockType == Material.WALL_SIGN) {
+				Sign sign = (Sign) blockAbove.getState();
+				String[] lines = sign.getLines();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					chest.getInventory().clear();
+				}
+			}
+			blockAbove = block.getRelative(1, 1, 0);
+			blockType = blockAbove.getType();
+			if(blockType == Material.WALL_SIGN) {
+				Sign sign = (Sign) blockAbove.getState();
+				String[] lines = sign.getLines();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					chest.getInventory().clear();
+				}
+			}
+			blockAbove = block.getRelative(-1, 1, 0);
+			blockType = blockAbove.getType();
+			if(blockType == Material.WALL_SIGN) {
+				Sign sign = (Sign) blockAbove.getState();
+				String[] lines = sign.getLines();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					chest.getInventory().clear();
+				}
+			}
+			blockAbove = block.getRelative(0, 1, 1);
+			blockType = blockAbove.getType();
+			if(blockType == Material.WALL_SIGN) {
+				Sign sign = (Sign) blockAbove.getState();
+				String[] lines = sign.getLines();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					chest.getInventory().clear();
+				}
+			}
+			blockAbove = block.getRelative(0, 1, -1);
+			blockType = blockAbove.getType();
+			if(blockType == Material.WALL_SIGN) {
+				Sign sign = (Sign) blockAbove.getState();
+				String[] lines = sign.getLines();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
 					chest.getInventory().clear();
 				}
 			}

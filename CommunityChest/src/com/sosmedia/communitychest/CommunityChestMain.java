@@ -11,7 +11,6 @@ import java.util.HashMap;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-
 public class CommunityChestMain extends JavaPlugin {
 	public File file;
 	private HashMap<String, CardboardBox[]> chests = new HashMap<String, CardboardBox[]>();
@@ -20,6 +19,10 @@ public class CommunityChestMain extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		loadFile();
+		try {
+			Metrics metrics = new Metrics(this);
+			metrics.start();
+		} catch (IOException e) {}	
 		getServer().getPluginManager().registerEvents(cl, this);
 	}
 
