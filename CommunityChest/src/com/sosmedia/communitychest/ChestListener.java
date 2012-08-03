@@ -11,6 +11,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -40,7 +41,7 @@ public class ChestListener implements Listener {
 				Sign sign = leftBlockType == Material.WALL_SIGN ? (Sign) leftBlock.getState() : (Sign) rightBlock.getState(); 
 				String[] lines = sign.getLines();
 				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
-					HashMap<String, CardboardBox[]> chests = plugin.loadFile();
+					HashMap<String, CardboardBox[]> chests = plugin.loadFile1();
 					String chestName = lines[2].toLowerCase();
 					if(chests.containsKey(chestName)) {
 						CardboardBox[] items = chests.get(chestName);
@@ -74,8 +75,11 @@ public class ChestListener implements Listener {
 			if(leftBlockType == Material.WALL_SIGN || rightBlockType == Material.WALL_SIGN) {
 				Sign sign = leftBlockType == Material.WALL_SIGN ? (Sign) leftBlock.getState() : (Sign) rightBlock.getState(); 
 				String[] lines = sign.getLines();
-				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) {   
-					HashMap<String, CardboardBox[]> chests = plugin.loadFile();
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) {
+
+
+
+					HashMap<String, CardboardBox[]> chests = plugin.loadFile1();
 					String chestName = lines[2].toLowerCase();
 					if(chests.containsKey(chestName)) {
 						ItemStack[] tempItems = dci.getContents();
@@ -108,7 +112,7 @@ public class ChestListener implements Listener {
 				Sign sign = leftBlockType == Material.WALL_SIGN ? (Sign) leftBlock.getState() : (Sign) rightBlock.getState(); 
 				String[] lines = sign.getLines();
 				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) {   
-					HashMap<String, CardboardBox[]> chests = plugin.loadFile();
+					HashMap<String, CardboardBox[]> chests = plugin.loadFile1();
 					String chestName = lines[2].toLowerCase();
 					if(chests.containsKey(chestName)) {
 						ItemStack[] tempItems = dci.getContents();
@@ -128,6 +132,20 @@ public class ChestListener implements Listener {
 	}
 
 	@EventHandler
+	public void signChangeEvent(SignChangeEvent event) {
+		Block block = event.getBlock();
+		String[] lines = event.getLines();
+		if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+			HashMap<String, DeconBlock> signs = plugin.loadFile2();
+			if(!signs.containsKey(lines[2])) {
+				DeconBlock deconBlock = new DeconBlock(block);
+				signs.put(lines[2], deconBlock);
+				plugin.saveFile(signs);
+			}
+		}
+	}
+
+	@EventHandler
 	public void explodeEvent(EntityExplodeEvent event) {
 		List<Block> blockList = event.blockList();
 		for(int i = 0; i < blockList.size(); i++) {
@@ -141,6 +159,10 @@ public class ChestListener implements Listener {
 		Block block = event.getBlock();
 		emptyChest(block);
 	}
+	public void removeSign(Block block) {
+		block.breakNaturally();
+
+	}
 
 	public void emptyChest(Block block) {
 		Material blockType = block.getType();
@@ -152,6 +174,12 @@ public class ChestListener implements Listener {
 				if(blockUnder.getTypeId() == 54) {
 					Location loc = blockUnder.getLocation();
 					Chest chest = (Chest)loc.getBlock().getState();
+					HashMap<String, DeconBlock> signs = plugin.loadFile2();
+					if(signs.containsKey(lines[2])) {
+						signs.remove(lines[2]);
+						plugin.saveFile(signs);
+						removeSign(block);
+					}
 					chest.getInventory().clear();
 				}
 			}
@@ -162,7 +190,13 @@ public class ChestListener implements Listener {
 			if(blockType == Material.WALL_SIGN) {
 				Sign sign = (Sign) blockAbove.getState();
 				String[] lines = sign.getLines();
-				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) {
+					HashMap<String, DeconBlock> signs = plugin.loadFile2();
+					if(signs.containsKey(lines[2])) {
+						signs.remove(lines[2]);
+						plugin.saveFile(signs);
+						removeSign(block);
+					}
 					chest.getInventory().clear();
 				}
 			}
@@ -172,6 +206,12 @@ public class ChestListener implements Listener {
 				Sign sign = (Sign) blockAbove.getState();
 				String[] lines = sign.getLines();
 				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					HashMap<String, DeconBlock> signs = plugin.loadFile2();
+					if(signs.containsKey(lines[2])) {
+						signs.remove(lines[2]);
+						plugin.saveFile(signs);
+						removeSign(block);
+					}
 					chest.getInventory().clear();
 				}
 			}
@@ -181,6 +221,12 @@ public class ChestListener implements Listener {
 				Sign sign = (Sign) blockAbove.getState();
 				String[] lines = sign.getLines();
 				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					HashMap<String, DeconBlock> signs = plugin.loadFile2();
+					if(signs.containsKey(lines[2])) {
+						signs.remove(lines[2]);
+						plugin.saveFile(signs);
+						removeSign(block);
+					}
 					chest.getInventory().clear();
 				}
 			}
@@ -190,6 +236,12 @@ public class ChestListener implements Listener {
 				Sign sign = (Sign) blockAbove.getState();
 				String[] lines = sign.getLines();
 				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					HashMap<String, DeconBlock> signs = plugin.loadFile2();
+					if(signs.containsKey(lines[2])) {
+						signs.remove(lines[2]);
+						plugin.saveFile(signs);
+						removeSign(block);
+					}
 					chest.getInventory().clear();
 				}
 			}
@@ -199,6 +251,12 @@ public class ChestListener implements Listener {
 				Sign sign = (Sign) blockAbove.getState();
 				String[] lines = sign.getLines();
 				if(lines[0].equalsIgnoreCase("community") && lines[1].equalsIgnoreCase("chest")) { 
+					HashMap<String, DeconBlock> signs = plugin.loadFile2();
+					if(signs.containsKey(lines[2])) {
+						signs.remove(lines[2]);
+						plugin.saveFile(signs);
+						removeSign(block);
+					}
 					chest.getInventory().clear();
 				}
 			}

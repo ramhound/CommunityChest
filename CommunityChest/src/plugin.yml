@@ -1,3 +1,8 @@
 name: Community Chest
 main: com.sosmedia.communitychest.CommunityChestMain
+author: ramhound
 version: 0.1
+commands:
+    cc:
+        description: List/remove Community Chests in your world.
+        usage: /<command> [list] and /<command> [delete] [CHESTNAME]
