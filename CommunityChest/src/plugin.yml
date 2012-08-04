@@ -5,4 +5,11 @@ version: 0.1
 commands:
     cc:
         description: List/remove Community Chests in your world.
-        usage: /<command> [list] and /<command> [delete] [CHESTNAME]
+        usage: |
+         /<command> [list] - Shows list of all community chests 
+         /<command> [delete] [CHESTNAME] - Delete a community chest
+    communitychest:
+        description: List/remove Community Chests in your world.
+        usage: |
+         /<command> [list] - Shows list of all community chests 
+         /<command> [delete] [CHESTNAME] - Delete a community chest

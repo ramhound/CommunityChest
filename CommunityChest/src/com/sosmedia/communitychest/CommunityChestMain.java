@@ -31,6 +31,7 @@ public class CommunityChestMain extends JavaPlugin {
 		} catch (IOException e) {}	
 		getServer().getPluginManager().registerEvents(cl, this);
 		getCommand("cc").setExecutor(commandListener);
+		getCommand("communitychest").setExecutor(commandListener);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -44,7 +45,7 @@ public class CommunityChestMain extends JavaPlugin {
 			}
 			try {
 				fileInventory.createNewFile();
-				chests.put("server", new CardboardBox[54]);
+				//chests.put("server", new CardboardBox[54]);
 				saveFile(chests, fileInventory);
 			} catch (IOException e) {
 				// let them know
@@ -81,7 +82,7 @@ public class CommunityChestMain extends JavaPlugin {
 			}
 			try {
 				fileNames.createNewFile();
-				signs.put("server", list);
+				//signs.put("server", list);
 				saveFile(signs, fileNames);
 			} catch (IOException e) {
 				// let them know

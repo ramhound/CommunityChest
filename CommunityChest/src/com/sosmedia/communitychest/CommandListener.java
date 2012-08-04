@@ -29,13 +29,17 @@ public class CommandListener implements CommandExecutor {
 			player = (Player) sender;
 		}
 		if(player != null) {
-			if(label.equalsIgnoreCase("cc") && args.length > 0) {
+			if((label.equalsIgnoreCase("cc") || label.equalsIgnoreCase("communitychest")) && args.length > 0) {
 
 				HashMap<String, CardboardBox[]> chests = plugin.loadFile1();
 				String[] keys = (String[])( chests.keySet().toArray( new String[chests.size()] ) );
 				if(args[0].equalsIgnoreCase("list")) {
 					player.sendMessage(ChatColor.GREEN + "Community Chest list:");
+					if(keys.length == 0) {
+						player.sendMessage("No community chests found");
+					} else {
 					player.sendMessage(keys);
+					}
 					return true;
 				} 
 				if(args[0].equalsIgnoreCase("delete") && args.length > 1) {

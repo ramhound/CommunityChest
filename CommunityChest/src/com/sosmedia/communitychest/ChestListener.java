@@ -27,7 +27,6 @@ public class ChestListener implements Listener {
 	public ChestListener(CommunityChestMain in) {
 		plugin = in;
 	}
-
 	@EventHandler
 	public void inventoryOpen(InventoryOpenEvent event) {
 		if(event.getInventory() instanceof DoubleChestInventory) {
