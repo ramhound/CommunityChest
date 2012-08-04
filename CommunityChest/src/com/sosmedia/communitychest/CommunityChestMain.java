@@ -7,19 +7,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CommunityChestMain extends JavaPlugin {
-	public File file;
-	private HashMap<String, CardboardBox[]> chests = new HashMap<String, CardboardBox[]>();
-	private HashMap<String, DeconBlock> signs = new HashMap<String, DeconBlock>();
-	private final ChestListener cl = new ChestListener(this);
+	public File fileInventory;
+	public File fileNames;
 	private DeconBlock deconBlock;
+	private HashMap<String, CardboardBox[]> chests = new HashMap<String, CardboardBox[]>();
+	private ArrayList<DeconBlock> list = new ArrayList<DeconBlock>();
+	private HashMap<String, ArrayList<DeconBlock>> signs = new HashMap<String, ArrayList<DeconBlock>>();
+	protected final ChestListener cl = new ChestListener(this);
 	CommandListener commandListener = new CommandListener(this);
 	@Override
 	public void onEnable() {
 		loadFile1();
+		loadFile2();
 		try {
 			Metrics metrics = new Metrics(this);
 			metrics.start();
@@ -32,22 +37,22 @@ public class CommunityChestMain extends JavaPlugin {
 	//loads the String, CardboardBox[] map
 	public HashMap<String, CardboardBox[]> loadFile1() {
 		File fileDir = new File("plugins" + File.separator + getDescription().getName() + File.separator);
-		file = new File("plugins" + File.separator + getDescription().getName() + File.separator + "chestinventory.ser");
-		if(!file.exists()) {
+		fileInventory = new File("plugins" + File.separator + getDescription().getName() + File.separator + "chestinventory.ser");
+		if(!fileInventory.exists()) {
 			if(!fileDir.exists()) {
 				fileDir.mkdir();
 			}
 			try {
-				file.createNewFile();
-				chests.put("", new CardboardBox[54]);
-				saveFile(chests);
+				fileInventory.createNewFile();
+				chests.put("server", new CardboardBox[54]);
+				saveFile(chests, fileInventory);
 			} catch (IOException e) {
 				// let them know
 				e.printStackTrace();
 			}
 		} else {
 			try {
-				FileInputStream fis = new FileInputStream(file);
+				FileInputStream fis = new FileInputStream(fileInventory);
 				ObjectInputStream ois = new ObjectInputStream(fis);
 				chests = (HashMap<String, CardboardBox[]>) ois.readObject();
 				ois.close();
@@ -66,27 +71,27 @@ public class CommunityChestMain extends JavaPlugin {
 	}
 	@SuppressWarnings("unchecked")
 	//loads the String, DeconBlock map
-	public HashMap<String, DeconBlock> loadFile2() {
-
+	public HashMap<String, ArrayList<DeconBlock>> loadFile2() {
+		list.add(deconBlock);
 		File fileDir = new File("plugins" + File.separator + getDescription().getName() + File.separator);
-		file = new File("plugins" + File.separator + getDescription().getName() + File.separator + "chestnames.ser");
-		if(!file.exists()) {
+		fileNames = new File("plugins" + File.separator + getDescription().getName() + File.separator + "chestnames.ser");
+		if(!fileNames.exists()) {
 			if(!fileDir.exists()) {
 				fileDir.mkdir();
 			}
 			try {
-				file.createNewFile();
-				signs.put("", deconBlock);
-				saveFile(signs);
+				fileNames.createNewFile();
+				signs.put("server", list);
+				saveFile(signs, fileNames);
 			} catch (IOException e) {
 				// let them know
 				e.printStackTrace();
 			}
 		} else {
 			try {
-				FileInputStream fis = new FileInputStream(file);
+				FileInputStream fis = new FileInputStream(fileNames);
 				ObjectInputStream ois = new ObjectInputStream(fis);
-				signs = (HashMap<String, DeconBlock>) ois.readObject();
+				signs = (HashMap<String, ArrayList<DeconBlock>>) ois.readObject();
 				ois.close();
 				return signs;
 			} catch (FileNotFoundException e) {
@@ -102,7 +107,7 @@ public class CommunityChestMain extends JavaPlugin {
 		return null;
 	}
 	
-	public boolean saveFile(Object obj) {
+	public boolean saveFile(Object obj, File file) {
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
